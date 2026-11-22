@@ -11,6 +11,7 @@
     <Style Selector="controls|MyButton">
         <Setter Property="Foreground" Value="{DynamicResource ColorBrush1}" />
         <Setter Property="Background" Value="{DynamicResource ColorBrushHalfWhite}" />
+        <Setter Property="CornerRadius" Value="3" />
         <Setter Property="RealRenderTransform">
             <ScaleTransform />
         </Setter>
@@ -25,7 +26,7 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding Foreground}"
                         BorderThickness="1"
-                        CornerRadius="3"
+                        CornerRadius="{TemplateBinding CornerRadius}"
                         Name="PanFore"
                         RenderTransform="{TemplateBinding RealRenderTransform}"
                         RenderTransformOrigin="50%,50%">

@@ -1,11 +1,183 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
+using Avalonia.Interactivity;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using MinecraftLaunch.Base.Models.Authentication;
+using MinecraftLaunch.Base.Models.Authentication.Microsoft;
+using MinecraftLaunch.Components.Authenticator;
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace PCL.Neo_InML.Views.Home;
 
 public partial class HomeView : UserControl
 {
+    // ============================================================
+    // TODO: 在这里填入 Azure 应用的客户端 ID，为空时点「登录」会提示。
+    // 另外按文档要求，Mojang 那边的申请表单需要已通过，否则 Minecraft 那一步会失败。
+    // ============================================================
+    private const string ClientId = "dd09ec86-031b-4429-adb8-7fec6bc1fd79";
+
+    /// <summary>
+    /// 最近一次登录成功的微软账户。
+    /// </summary>
+    public MicrosoftAccount? CurrentAccount { get; private set; }
+
     public HomeView()
     {
         InitializeComponent();
+        LoadDefaultAvatar();
+    }
+
+    private void OnLoginModeClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control { Tag: string mode })
+        {
+            ShowLoginMode(mode);
+        }
+    }
+
+    /// <summary>
+    /// 切换正版 / 离线登录界面。
+    /// </summary>
+    /// <param name="mode">"premium" 或 "offline"。</param>
+    public void ShowLoginMode(string mode)
+    {
+        var isPremium = mode == "premium";
+
+        PanPremium.IsVisible = isPremium;
+        PanOffline.IsVisible = !isPremium;
+        PanLoggedIn.IsVisible = false;
+
+        BtnLoginPremium.IsChecked = isPremium;
+        BtnLoginOffline.IsChecked = !isPremium;
+    }
+
+    /// <summary>
+    /// 登录成功后切到「玩家头像 + 玩家名」的界面。
+    /// </summary>
+    /// <param name="playerName">玩家名。</param>
+    public void ShowLoggedIn(string playerName)
+    {
+        PanPremium.IsVisible = false;
+        PanOffline.IsVisible = false;
+        PanLoggedIn.IsVisible = true;
+
+        ShowStatus(string.Empty);
+        TxtPlayerName.Text = playerName;
+    }
+
+    /// <summary>
+    /// 微软正版登录：设备代码流，浏览器里完成授权。
+    /// </summary>
+    private async void BtnPremiumLogin_Click(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(ClientId))
+        {
+            ShowStatus("还没配置 Azure 客户端 ID，请在 HomeView.axaml.cs 里填写 ClientId。");
+            return;
+        }
+
+        BtnPremiumLogin.IsEnabled = false;
+
+        try
+        {
+            var authenticator = new MicrosoftAuthenticator(ClientId);
+
+            // DeviceFlowAuthAsync 内部会一直轮询，直到用户在浏览器里完成登录或超时；
+            // 回调里给出一次性代码和验证地址。
+            var token = await authenticator.DeviceFlowAuthAsync(deviceCode =>
+            {
+                // 回调在后台线程，切回 UI 线程再更新界面 / 操作剪贴板
+                Dispatcher.UIThread.Post(() => _ = HandleDeviceCodeAsync(deviceCode));
+            }, CancellationToken.None);
+
+            ShowStatus("正在验证 Xbox Live 与 Minecraft 账户…");
+
+            var account = await authenticator.AuthenticateAsync(token, CancellationToken.None);
+            CurrentAccount = account;
+
+            // 头像先固定用 Steve，皮肤接口以后接
+            ShowLoggedIn(account.Name);
+        }
+        catch (Exception ex)
+        {
+            ShowStatus($"登录失败：{ex.Message}");
+        }
+        finally
+        {
+            BtnPremiumLogin.IsEnabled = true;
+        }
+    }
+
+    /// <summary>
+    /// 拿到一次性代码后：复制到剪贴板、提示用户、打开浏览器。
+    /// </summary>
+    private async Task HandleDeviceCodeAsync(DeviceCodeResponse deviceCode)
+    {
+        var copied = await CopyToClipboardAsync(deviceCode.UserCode);
+
+        ShowStatus(copied
+            ? $"代码 {deviceCode.UserCode} 已复制，请在浏览器中粘贴"
+            : $"请在浏览器中输入代码：{deviceCode.UserCode}");
+
+        OpenBrowser(deviceCode.VerificationUrl);
+    }
+
+    /// <summary>
+    /// 把文本写入系统剪贴板。
+    /// </summary>
+    /// <returns>写入成功返回 true；剪贴板不可用时返回 false。</returns>
+    private async Task<bool> CopyToClipboardAsync(string text)
+    {
+        try
+        {
+            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+
+            if (clipboard is null)
+                return false;
+
+            await clipboard.SetTextAsync(text);
+            return true;
+        }
+        catch (Exception)
+        {
+            // 剪贴板被占用/不可用时不打断登录流程，状态栏里仍然会显示代码
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 用系统默认浏览器打开授权页（仅 Windows）。
+    /// </summary>
+    private static void OpenBrowser(string url)
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+    }
+
+    private void ShowStatus(string text)
+    {
+        TxtAuthStatus.Text = text;
+        TxtAuthStatus.IsVisible = !string.IsNullOrEmpty(text);
+    }
+
+    /// <summary>
+    /// 皮肤贴图是 64x64 的全身图，头部位于 (8,8) 的 8x8 区域，裁出来再做像素放大。
+    /// </summary>
+    private void LoadDefaultAvatar()
+    {
+        var skin = new Bitmap(AssetLoader.Open(new Uri("avares://PCL.Neo_InML/Assets/Skins/Steve.png")));
+        var head = new CroppedBitmap(skin, new PixelRect(8, 8, 8, 8));
+
+        ImgOfflineAvatar.Source = head;
+        ImgPlayerAvatar.Source = head;
     }
 }

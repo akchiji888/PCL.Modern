@@ -20,6 +20,7 @@
 
         <StyleInclude Source="avares://PCL.Neo_InML/Styles/Icons.axaml" />
         <StyleInclude Source="avares://PCL.Neo_InML/Styles/MyControlStyles.axaml" />
+        <StyleInclude Source="avares://PCL.Neo_InML/Styles/ComboBoxStyles.axaml" />
         <StyleInclude Source="avares://PCL.Neo_InML/Styles/CustomStyles.axaml" />
     </Application.Styles>
 </Application>

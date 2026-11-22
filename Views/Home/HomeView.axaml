@@ -1,6 +1,6 @@
 <UserControl
-    d:DesignHeight="450"
-    d:DesignWidth="800"
+    d:DesignHeight="400"
+    d:DesignWidth="350"
     mc:Ignorable="d"
     x:Class="PCL.Neo_InML.Views.Home.HomeView"
     xmlns="https://github.com/avaloniaui"
@@ -8,34 +8,169 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <Grid Margin="0,-36,0,0" VerticalAlignment="Stretch">
-            <StackPanel VerticalAlignment="Center">
-                <Image
-                    x:Name="ImgSkinHead"
+
+    <UserControl.Styles>
+        <!--  ComboBox 的基础样式已抽到 Styles/ComboBoxStyles.axaml，全局生效  -->
+    </UserControl.Styles>
+
+    <Grid
+        Margin="14,10,14,16"
+        RowDefinitions="Auto,*,Auto"
+        Width="248">
+
+        <!--  账号类型切换：正版 / 离线  -->
+        <StackPanel
+            Grid.Row="0"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal">
+            <controls:MyRadioButton
+                Click="OnLoginModeClick"
+                ColorType="HighLight"
+                GroupName="LoginMode"
+                IsChecked="True"
+                Logo="{StaticResource BtnLoginPremium}"
+                LogoScale="0.85"
+                Margin="5,0"
+                Name="BtnLoginPremium"
+                Tag="premium"
+                Text="正版" />
+            <controls:MyRadioButton
+                Click="OnLoginModeClick"
+                ColorType="HighLight"
+                GroupName="LoginMode"
+                Logo="{StaticResource BtnLoginOffline}"
+                LogoScale="0.85"
+                Margin="5,0"
+                Name="BtnLoginOffline"
+                Tag="offline"
+                Text="离线" />
+        </StackPanel>
+
+        <!--  登录界面  -->
+        <Panel Grid.Row="1">
+
+            <!--  正版：账号图标 + 选择账号 + 登录按钮  -->
+            <StackPanel
+                HorizontalAlignment="Center"
+                Name="PanPremium"
+                Spacing="16"
+                VerticalAlignment="Center">
+                <Path
+                    Data="{StaticResource IconAccount}"
+                    Fill="{DynamicResource ColorBrush3}"
+                    Height="44"
+                    HorizontalAlignment="Center"
+                    Stretch="Uniform"
+                    Width="44" />
+                <StackPanel
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <ComboBox
+                        CornerRadius="6"
+                        Height="32"
+                        Name="CmbPremiumAccount"
+                        PlaceholderText="添加新账号"
+                        Width="164" />
+                    <controls:MyButton
+                        ColorType="Highlight"
+                        CornerRadius="6"
+                        Foreground="{DynamicResource ColorBrush3}"
+                        Height="32"
+                        Click="BtnPremiumLogin_Click"
+                        Name="BtnPremiumLogin"
+                        Text="登录"
+                        Width="62" />
+                </StackPanel>
+                <TextBlock
+                    FontSize="12"
+                    Foreground="{DynamicResource ColorBrushGray2}"
+                    HorizontalAlignment="Center"
+                    IsVisible="False"
+                    MaxWidth="232"
+                    Name="TxtAuthStatus"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!--  离线：方形头像 + 可输入账号名  -->
+            <StackPanel
+                HorizontalAlignment="Center"
+                IsVisible="False"
+                Name="PanOffline"
+                Spacing="16"
+                VerticalAlignment="Center">
+                <Border
+                    BorderBrush="{DynamicResource ColorBrushGray5}"
+                    BorderThickness="1"
+                    CornerRadius="4"
                     Height="52"
                     HorizontalAlignment="Center"
-                    Width="52" />
-                <ComboBox Margin="20" Width="260">
-                    <ComboBoxItem>Steve</ComboBoxItem>
-                    <ComboBoxItem>Alex</ComboBoxItem>
-                    <ComboBoxItem>GordonFreeman</ComboBoxItem>
-                </ComboBox>
+                    Width="52">
+                    <Image
+                        Name="ImgOfflineAvatar"
+                        RenderOptions.BitmapInterpolationMode="None"
+                        Stretch="Fill" />
+                </Border>
+                <ComboBox
+                    CornerRadius="6"
+                    Height="32"
+                    IsEditable="True"
+                    Name="CmbOfflineAccount"
+                    PlaceholderText="添加新账号"
+                    Width="232" />
             </StackPanel>
-        </Grid>
 
-        <StackPanel VerticalAlignment="Bottom">
+            <!--  登录成功后：头像 + 玩家名  -->
+            <StackPanel
+                HorizontalAlignment="Center"
+                IsVisible="False"
+                Name="PanLoggedIn"
+                Spacing="12"
+                VerticalAlignment="Center">
+                <Border
+                    BorderBrush="{DynamicResource ColorBrushGray5}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Height="52"
+                    HorizontalAlignment="Center"
+                    Width="52">
+                    <Image
+                        Name="ImgPlayerAvatar"
+                        RenderOptions.BitmapInterpolationMode="None"
+                        Stretch="Fill" />
+                </Border>
+                <TextBlock
+                    FontSize="15"
+                    Foreground="{DynamicResource ColorBrushGray2}"
+                    HorizontalAlignment="Center"
+                    Name="TxtPlayerName"
+                    Text="Steve" />
+            </StackPanel>
+
+        </Panel>
+
+        <!--  底部操作  -->
+        <StackPanel Grid.Row="2" Spacing="10">
             <controls:MyButton
                 ColorType="Highlight"
-                Height="34"
-                Margin="20,0"
-                Text="启动游戏"
-                Width="260" />
-            <controls:MyButton
-                Height="34"
-                Margin="5,10,5,20"
-                Text="版本选择"
-                Width="260" />
+                CornerRadius="6"
+                Height="52"
+                Name="BtnLaunch"
+                Text="启动游戏" />
+            <Grid ColumnDefinitions="*,10,*">
+                <controls:MyButton
+                    CornerRadius="6"
+                    Grid.Column="0"
+                    Height="34"
+                    Text="版本选择" />
+                <controls:MyButton
+                    CornerRadius="6"
+                    Grid.Column="2"
+                    Height="34"
+                    Text="版本设置" />
+            </Grid>
         </StackPanel>
+
     </Grid>
 </UserControl>

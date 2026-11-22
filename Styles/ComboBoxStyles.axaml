@@ -1,0 +1,47 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        PCL 风格 ComboBox：白底 + 圆角 + 主题色描边。
+        全局生效，新写的 ComboBox 不用再单独配置。
+
+        注意：悬停/聚焦必须打到模板里的 Border#Background，
+        只在 ComboBox 自身设 BorderBrush 管不到它——
+        Fluent 的 ControlTheme 会把该 Border 的描边改成深色（看起来就是"变黑"）。
+    -->
+
+    <!--  常态  -->
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource ColorBrushWhite}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ColorBrush5}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="Padding" Value="10,0" />
+    </Style>
+
+    <!--  悬停：主题色淡底 + 稍深一点的描边  -->
+    <Style Selector="ComboBox:pointerover /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource ColorBrush8}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ColorBrush4}" />
+    </Style>
+
+    <!--  聚焦：白底 + 主题色描边（放在 pointerover 之后，优先级更高）  -->
+    <Style Selector="ComboBox:focus-within /template/ Border#Background">
+        <Setter Property="Background" Value="{DynamicResource ColorBrushWhite}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ColorBrush3}" />
+    </Style>
+
+    <!--
+        可编辑（IsEditable=True）时内嵌的 TextBox 默认把文字顶到上边，
+        这里强制垂直居中，并去掉它自己的内边距，避免和 ComboBox 的 Padding 叠加。
+    -->
+    <Style Selector="ComboBox TextBox#PART_EditableTextBox">
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+</Styles>
