@@ -12,6 +12,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using PCL.Neo_InML;
 
 namespace PCL.Neo_InML.Views.Home;
 
@@ -21,7 +22,7 @@ public partial class HomeView : UserControl
     // TODO: 在这里填入 Azure 应用的客户端 ID，为空时点「登录」会提示。
     // 另外按文档要求，Mojang 那边的申请表单需要已通过，否则 Minecraft 那一步会失败。
     // ============================================================
-    private const string ClientId = "dd09ec86-031b-4429-adb8-7fec6bc1fd79";
+    private string ClientId = Keys.ClientId;
 
     /// <summary>
     /// 最近一次登录成功的微软账户。
