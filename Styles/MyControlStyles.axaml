@@ -1,0 +1,9 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyIconButton.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyRadioButton.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyCard.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyButton.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyLoading.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyCard.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyMsg/MyMsgText.axaml" />
+</Styles>

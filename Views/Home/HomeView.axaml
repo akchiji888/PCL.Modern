@@ -1,0 +1,41 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="PCL.Neo_InML.Views.Home.HomeView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:PCL.Neo_InML.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid Margin="0,-36,0,0" VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center">
+                <Image
+                    x:Name="ImgSkinHead"
+                    Height="52"
+                    HorizontalAlignment="Center"
+                    Width="52" />
+                <ComboBox Margin="20" Width="260">
+                    <ComboBoxItem>Steve</ComboBoxItem>
+                    <ComboBoxItem>Alex</ComboBoxItem>
+                    <ComboBoxItem>GordonFreeman</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+
+        <StackPanel VerticalAlignment="Bottom">
+            <controls:MyButton
+                ColorType="Highlight"
+                Height="34"
+                Margin="20,0"
+                Text="启动游戏"
+                Width="260" />
+            <controls:MyButton
+                Height="34"
+                Margin="5,10,5,20"
+                Text="版本选择"
+                Width="260" />
+        </StackPanel>
+    </Grid>
+</UserControl>
