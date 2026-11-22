@@ -8,8 +8,10 @@ using Avalonia.Threading;
 using MinecraftLaunch.Base.Models.Authentication;
 using MinecraftLaunch.Base.Models.Authentication.Microsoft;
 using MinecraftLaunch.Components.Authenticator;
+using MinecraftLaunch.Components.Provider;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using PCL.Neo_InML;
@@ -28,6 +30,11 @@ public partial class HomeView : UserControl
     /// 最近一次登录成功的微软账户。
     /// </summary>
     public MicrosoftAccount? CurrentAccount { get; private set; }
+
+    /// <summary>
+    /// 当前玩家皮肤位图（持有引用，防止 CroppedBitmap 的源被回收）。
+    /// </summary>
+    private Bitmap? PlayerSkin { get; set; }
 
     public HomeView()
     {
@@ -103,8 +110,9 @@ public partial class HomeView : UserControl
             var account = await authenticator.AuthenticateAsync(token, CancellationToken.None);
             CurrentAccount = account;
 
-            // 头像先固定用 Steve，皮肤接口以后接
+            // 先按 Steve 占位把界面切过去，皮肤拉回来后再替换
             ShowLoggedIn(account.Name);
+            await LoadPlayerSkinAsync(account);
         }
         catch (Exception ex)
         {
@@ -180,5 +188,35 @@ public partial class HomeView : UserControl
 
         ImgOfflineAvatar.Source = head;
         ImgPlayerAvatar.Source = head;
+    }
+
+    /// <summary>
+    /// 从微软账户拉取皮肤，并把头部贴到头像上。
+    /// 失败时保持 Steve 占位，不影响登录结果。
+    /// </summary>
+    private async Task LoadPlayerSkinAsync(MicrosoftAccount account)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+
+            await using var skinStream = await SkinProvider.GetMicrosoftSkinDataAsync(account, cts.Token);
+
+            // 转到内存流，保证 Bitmap 拿到的是可定位的流
+            using var memory = new MemoryStream();
+            await skinStream.CopyToAsync(memory, cts.Token);
+            memory.Position = 0;
+
+            var skinBitmap = new Bitmap(memory);
+
+            // 持有源位图，避免 CroppedBitmap 用到的底层数据被回收
+            PlayerSkin = skinBitmap;
+
+            ImgPlayerAvatar.Source = new CroppedBitmap(skinBitmap, new PixelRect(8, 8, 8, 8));
+        }
+        catch (Exception)
+        {
+            // 皮肤拉取失败：继续用 Steve 占位
+        }
     }
 }

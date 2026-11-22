@@ -7,5 +7,6 @@ namespace PCL.Neo_InML
     internal class Keys
     {
         public static string ClientId = "aaaaaaaa-1234-1234-1234-123456789abc";
+        public static string CurseForgeApiKey = "Your API KEY";
     }
 }

@@ -7,6 +7,7 @@ using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.Styling;
+using MinecraftLaunch;
 using PCL.Neo_InML.Animations.Easings;
 using PCL.Neo_InML.Controls;
 using PCL.Neo_InML.Helpers;
@@ -33,7 +34,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
+        InitializeHelper.Initialize(settings => {
+            settings.MaxThread = 256; // 最大下载线程
+            settings.MaxFragment = 128; // 最大文件分片数量
+            settings.MaxRetryCount = 4; // 最大下载重试次数
+            settings.IsEnableMirror = false; // 是否启用 Minecraft 国内下载镜像源（BMCLAPI）
+            settings.IsEnableFragment = false; // 是否启用分片下载
+            settings.CurseForgeApiKey = Keys.CurseForgeApiKey; // Curseforge API Key 设置（可选）
+            settings.UserAgent = "PCL.Modern/1.0"; // 自定义请求时所使用的 User Agent
+        });
         NavBackgroundBorder.PointerPressed += (i, e) =>
         {
             if (e.GetCurrentPoint(i as Control).Properties.IsLeftButtonPressed)
