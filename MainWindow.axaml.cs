@@ -7,10 +7,10 @@ using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.Styling;
-using MinecraftLaunch;
 using PCL.Neo_InML.Animations.Easings;
 using PCL.Neo_InML.Controls;
 using PCL.Neo_InML.Helpers;
+using PCL.Neo_InML.Views.Download;
 using PCL.Neo_InML.Views.Home;
 using PCL.Neo_InML.Views.Online;
 using System;
@@ -34,15 +34,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        InitializeHelper.Initialize(settings => {
-            settings.MaxThread = 256; // 最大下载线程
-            settings.MaxFragment = 128; // 最大文件分片数量
-            settings.MaxRetryCount = 4; // 最大下载重试次数
-            settings.IsEnableMirror = false; // 是否启用 Minecraft 国内下载镜像源（BMCLAPI）
-            settings.IsEnableFragment = false; // 是否启用分片下载
-            settings.CurseForgeApiKey = Keys.CurseForgeApiKey; // Curseforge API Key 设置（可选）
-            settings.UserAgent = "PCL.Modern/1.0"; // 自定义请求时所使用的 User Agent
-        });
+
         NavBackgroundBorder.PointerPressed += (i, e) =>
         {
             if (e.GetCurrentPoint(i as Control).Properties.IsLeftButtonPressed)
@@ -148,16 +140,26 @@ public partial class MainWindow : Window
                 LeftNavigationControl.Content = new HomeView();
                 RightNavigationControl.Content = new HomeSubView();
                 break;
+            case 2:
+                LeftNavigationControl.Content = new DownloadView();
+                RightNavigationControl.Content = new DownloadSubView();
+                break;
             case 3:
                 LeftNavigationControl.Content = new OnlineView();
                 RightNavigationControl.Content = new OnlineSubView();
                 break;
             default:
-                // TODO: 下载 / 设置 / 更多 三个页面还没实现
+                // TODO: 设置 / 更多 两个页面还没实现
                 break;
         }
 
         BtnNavBack.IsEnabled = _history.Count > 0;
+
+        // 切换页面后侧边栏宽度会变，主动同步一次背景条宽度，
+        // 否则可能停留在上一页的宽度上，看起来就是"侧边栏比内容宽"
+        Avalonia.Threading.Dispatcher.UIThread.Post(
+            () => LeftNavigationControlBorder.Width = LeftNavigationControl.Bounds.Width,
+            Avalonia.Threading.DispatcherPriority.Loaded);
 
         if (changed)
             PlayNavigationAnimation(pushHistory);

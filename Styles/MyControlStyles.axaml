@@ -4,6 +4,7 @@
     <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyCard.axaml" />
     <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyButton.axaml" />
     <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyLoading.axaml" />
+    <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyExpander.axaml" />
     <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyCard.axaml" />
     <StyleInclude Source="avares://PCL.Neo_InML/Controls/MyMsg/MyMsgText.axaml" />
 </Styles>

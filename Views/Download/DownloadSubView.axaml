@@ -1,0 +1,94 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="700"
+    mc:Ignorable="d"
+    x:Class="PCL.Neo_InML.Views.Download.DownloadSubView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="clr-namespace:PCL.Neo_InML.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dl="clr-namespace:PCL.Neo_InML.Views.Download"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <!--  一行版本：方块图标 + 版本号 + 发布时间  -->
+        <DataTemplate x:DataType="dl:VersionRow" x:Key="VersionRowTemplate">
+            <Border Classes="VersionRow">
+                <Grid ColumnDefinitions="Auto,*">
+                    <Image
+                        Height="32"
+                        Source="{Binding Icon}"
+                        VerticalAlignment="Center"
+                        Width="32" />
+                    <StackPanel
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+                        <TextBlock
+                            FontSize="15"
+                            Foreground="{DynamicResource ColorBrush1}"
+                            Text="{Binding Name}" />
+                        <TextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource ColorBrushGray2}"
+                            Margin="0,4,0,0"
+                            Text="{Binding Subtitle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <!--  悬停：深蓝边框 + 浅蓝底，渐入渐出（PCL2 的悬停是淡出淡入）  -->
+        <Style Selector="Border.VersionRow">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Duration="0:0:0.15" Property="Background" />
+                    <BrushTransition Duration="0:0:0.15" Property="BorderBrush" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border.VersionRow:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ColorBrush8}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ColorBrush3}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Panel>
+        <ScrollViewer
+            Name="PanList"
+            IsVisible="False"
+            Padding="16,14">
+            <StackPanel Spacing="14">
+                <controls:MyExpander Header="最新版本" IsExpanded="True" Name="LatestCard">
+                    <ItemsControl
+                        ItemTemplate="{StaticResource VersionRowTemplate}"
+                        Name="ItemsLatest" />
+                </controls:MyExpander>
+
+                <controls:MyExpander Header="正式版" IsExpanded="True" Name="ReleaseCard">
+                    <ItemsControl
+                        ItemTemplate="{StaticResource VersionRowTemplate}"
+                        Name="ItemsRelease" />
+                </controls:MyExpander>
+
+                <controls:MyExpander Header="预览版" IsExpanded="False" Name="SnapshotCard">
+                    <ItemsControl
+                        ItemTemplate="{StaticResource VersionRowTemplate}"
+                        Name="ItemsSnapshot" />
+                </controls:MyExpander>
+            </StackPanel>
+        </ScrollViewer>
+
+        <controls:MyLoading
+            Name="PanLoading"
+            State="Loading"
+            TextLoading="正在获取版本列表…" />
+    </Panel>
+</UserControl>

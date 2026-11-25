@@ -1,4 +1,4 @@
-<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="using:PCL.Neo_InML.Controls">
     <Design.PreviewWith>
         <Border Padding="20">
             <!--  Add Controls for Previewer Here  -->
@@ -67,14 +67,9 @@
         <Setter Property="Opacity" Value="0.9" />
         <Setter Property="Background" Value="{DynamicResource ColorBrush3}" />
     </Style>
-    <!--<Style Selector="ScrollViewer">
-        <Setter Property="Transitions">
-            <Transitions>
-                <VectorTransition
-                    Duration="0:0:0.3"
-                    Easing="QuinticEaseOut"
-                    Property="Offset" />
-            </Transitions>
-        </Setter>
-    </Style>-->
+    <!--
+        说明：曾尝试用 VectorTransition 给 ScrollViewer.Offset 做"非线性滚动"，
+        实测只有第一次滚动生效（之后直接跳变），已回退为系统原生滚动。
+        如果以后要做，先用小 Demo 把触发条件验证清楚再接入。
+    -->
 </Styles>

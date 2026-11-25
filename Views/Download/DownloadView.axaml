@@ -1,0 +1,205 @@
+<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="150"
+    mc:Ignorable="d"
+    x:Class="PCL.Neo_InML.Views.Download.DownloadView"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Styles>
+        <!--
+            左侧分组导航项：
+            - 悬停/选中的底色是"拉通"的（铺满整行，不留圆角内缩）
+            - 选中时左边缘有一条蓝色小条，高度从 0 渐长、取消选中时渐短消失
+        -->
+        <Style Selector="RadioButton.NavItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="14,8" />
+            <!--  必须显式拉伸：否则 StackPanel 里每一项只有自己的内容宽度（Mod 最短所以最窄）  -->
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Duration="0:0:0.18" Property="Background" />
+                </Transitions>
+            </Setter>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Panel HorizontalAlignment="Stretch">
+                        <!--
+                            整行背景：默认无边线。
+                            悬停/选中时由样式把上下边线刷成浅蓝，形成色带的上下边界（PCL2 的效果）。
+                        -->
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent"
+                            BorderThickness="0,1,0,1"
+                            HorizontalAlignment="Stretch"
+                            Name="RowBg">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <BrushTransition Duration="0:0:0.18" Property="BorderBrush" />
+                                </Transitions>
+                            </Border.Transitions>
+                            <ContentPresenter
+                                Content="{TemplateBinding Content}"
+                                Margin="{TemplateBinding Padding}" />
+                        </Border>
+
+                        <!--
+                            选中指示条：只动 Height，天然可以做"渐长/渐短"。
+                            缓动不用 QuinticEaseOut——它尾段速度趋近 0，最后几像素会"爬"很久；
+                            再叠一个更快的 Opacity 过渡，收缩时先淡掉，避免看到那截拖尾。
+                        -->
+                        <Border
+                            Background="{DynamicResource ColorBrush3}"
+                            CornerRadius="0,2,2,0"
+                            Height="0"
+                            HorizontalAlignment="Left"
+                            Name="SelectBar"
+                            Opacity="0"
+                            VerticalAlignment="Center"
+                            Width="3">
+                            <Border.Transitions>
+                                <Transitions>
+                                    <DoubleTransition
+                                        Duration="0:0:0.22"
+                                        Easing="CubicEaseOut"
+                                        Property="Height" />
+                                    <DoubleTransition Duration="0:0:0.13" Property="Opacity" />
+                                </Transitions>
+                            </Border.Transitions>
+                        </Border>
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="RadioButton.NavItem TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Foreground" Value="{DynamicResource ColorBrush1}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Duration="0:0:0.18" Property="Foreground" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <Style Selector="RadioButton.NavItem Path">
+            <Setter Property="Fill" Value="Transparent" />
+            <Setter Property="Height" Value="17" />
+            <Setter Property="Stroke" Value="{DynamicResource ColorBrush1}" />
+            <Setter Property="StrokeThickness" Value="1.4" />
+            <Setter Property="Stretch" Value="Uniform" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Width" Value="17" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Duration="0:0:0.18" Property="Stroke" />
+                </Transitions>
+            </Setter>
+        </Style>
+
+        <!--  悬停：色带浅蓝底 + 上下边线  -->
+        <Style Selector="RadioButton.NavItem:pointerover">
+            <Setter Property="Background" Value="{DynamicResource ColorBrush8}" />
+        </Style>
+        <Style Selector="RadioButton.NavItem:pointerover TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource ColorBrush2}" />
+        </Style>
+        <Style Selector="RadioButton.NavItem:pointerover Path">
+            <Setter Property="Stroke" Value="{DynamicResource ColorBrush2}" />
+        </Style>
+
+        <!--
+            选中：只有文字/图标变主题色 + 左侧小条渐长。
+            注意：选中项不铺淡蓝底、也不画蓝边线——那是悬停才有的效果。
+        -->
+        <Style Selector="RadioButton.NavItem:checked TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource ColorBrush3}" />
+        </Style>
+        <Style Selector="RadioButton.NavItem:checked Path">
+            <Setter Property="Stroke" Value="{DynamicResource ColorBrush3}" />
+        </Style>
+        <Style Selector="RadioButton.NavItem:checked /template/ Border#SelectBar">
+            <Setter Property="Height" Value="22" />
+            <Setter Property="Opacity" Value="1" />
+        </Style>
+
+        <!--  悬停：色带浅蓝底 + 上下边线  -->
+        <Style Selector="RadioButton.NavItem:pointerover /template/ Border#RowBg">
+            <Setter Property="BorderBrush" Value="{DynamicResource ColorBrush5}" />
+        </Style>
+    </UserControl.Styles>
+
+    <!--  固定宽度 + 左对齐：不要用 Stretch/居中，否则行宽和侧边栏宽度可能不一致  -->
+    <Grid
+        HorizontalAlignment="Left"
+        Margin="0,10,0,10"
+        RowDefinitions="Auto,Auto"
+        Width="160">
+
+        <!--  原版游戏  -->
+        <StackPanel Grid.Row="0" Spacing="0">
+            <RadioButton
+                Classes="NavItem"
+                GroupName="DownloadNav"
+                IsChecked="True">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M12,2 L21,7 V17 L12,22 L3,17 V7 Z M3,7 L12,12 L21,7 M12,12 V22" />
+                    <TextBlock Text="原版游戏" />
+                </StackPanel>
+            </RadioButton>
+        </StackPanel>
+
+        <!--  社区资源  -->
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,14,0,0"
+            Spacing="0">
+            <TextBlock
+                FontSize="12"
+                Foreground="{DynamicResource ColorBrushGray3}"
+                Margin="14,0,0,6"
+                Text="社区资源" />
+
+            <RadioButton Classes="NavItem" GroupName="DownloadNav">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M5,5 H10 V8 A2,2 0 1,1 14,8 V5 H19 V19 H5 Z" />
+                    <TextBlock Text="Mod" />
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Classes="NavItem" GroupName="DownloadNav">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M4,7 H20 V19 H4 Z M4,7 V4 H20 V7 M4,11 H20" />
+                    <TextBlock Text="整合包" />
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Classes="NavItem" GroupName="DownloadNav">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M4,4 H11 V11 H4 Z M13,4 H20 V11 H13 Z M4,13 H11 V20 H4 Z M13,13 H20 V20 H13 Z" />
+                    <TextBlock Text="数据包" />
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Classes="NavItem" GroupName="DownloadNav">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M3,5 H21 V19 H3 Z M6,15 L10,10 L13,13.5 L16,10.5 L19,15 M7,8 A1.2,1.2 0 1,0 7,10.4 A1.2,1.2 0 1,0 7,8 Z" />
+                    <TextBlock Text="资源包" />
+                </StackPanel>
+            </RadioButton>
+
+            <RadioButton Classes="NavItem" GroupName="DownloadNav">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Path Data="M12,7 A5,5 0 1,0 12,17 A5,5 0 1,0 12,7 Z M12,2 V4 M12,20 V22 M2,12 H4 M20,12 H22 M5,5 L6.5,6.5 M17.5,17.5 L19,19 M19,5 L17.5,6.5 M6.5,17.5 L5,19" />
+                    <TextBlock Text="光影包" />
+                </StackPanel>
+            </RadioButton>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,112 @@
+<Styles
+    xmlns="https://github.com/avaloniaui"
+    xmlns:controls="using:PCL.Neo_InML.Controls"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Background="{DynamicResource ColorBrush8}" Padding="20">
+            <controls:MyExpander
+                Header="最新版本"
+                IsExpanded="True"
+                Width="320">
+                <TextBlock Text="卡片内容" />
+            </controls:MyExpander>
+        </Border>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|MyExpander">
+        <Setter Property="Background" Value="{DynamicResource ColorBrushWhite}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="15,12" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <!--
+                        悬停光晕：单独一层，只动 Opacity，所以能真正做到淡入淡出。
+                        必须给 Background，否则 BoxShadow 会按矩形边界绘制、丢掉圆角。
+                        颜色是主题色 ColorBrush3(#1370f3) 的低透明度版本，两层叠出衰减。
+                        注意不要在这里改 Background/BorderBrush 的"可见"颜色——那会变成整块变色。
+                    -->
+                    <Border
+                        Background="{DynamicResource ColorBrushWhite}"
+                        BoxShadow="0 4 18 0 #991370f3, 0 8 36 0 #4D1370f3"
+                        CornerRadius="6"
+                        IsHitTestVisible="False"
+                        Name="Glow"
+                        Opacity="0">
+                        <Border.Transitions>
+                            <Transitions>
+                                <DoubleTransition Duration="0:0:0.2" Property="Opacity" />
+                            </Transitions>
+                        </Border.Transitions>
+                    </Border>
+
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        BoxShadow="0 1 5 0 #22000000"
+                        CornerRadius="6"
+                        Name="CardBorder">
+                        <Grid RowDefinitions="Auto,Auto">
+                            <!--  整条标题栏可点击，点击逻辑在 MyExpander.axaml.cs 里处理  -->
+                            <Border
+                                Background="Transparent"
+                                Cursor="Hand"
+                                Name="PART_Header">
+                                <Grid ColumnDefinitions="*,Auto" Margin="{TemplateBinding Padding}">
+                                    <!--  Foreground 交给样式控制，悬停时过渡到主题色  -->
+                                    <TextBlock
+                                        FontSize="16"
+                                        FontWeight="Bold"
+                                        Name="HeaderText"
+                                        Text="{TemplateBinding Header}"
+                                        VerticalAlignment="Center" />
+                                    <Path
+                                        Grid.Column="1"
+                                        Data="M2,4 l-2,2 10,10 10,-10 -2,-2 -8,8 -8,-8 z"
+                                        Fill="{DynamicResource ColorBrush1}"
+                                        Height="6"
+                                        Name="Chevron"
+                                        RenderTransformOrigin="50%,50%"
+                                        Stretch="Uniform"
+                                        VerticalAlignment="Center"
+                                        Width="10">
+                                        <Path.RenderTransform>
+                                            <RotateTransform />
+                                        </Path.RenderTransform>
+                                    </Path>
+                                </Grid>
+                            </Border>
+
+                            <ContentPresenter
+                                Grid.Row="1"
+                                Margin="{TemplateBinding Padding}"
+                                Content="{TemplateBinding Content}"
+                                IsVisible="{TemplateBinding IsExpanded}" />
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <!--  标题字：常态深色，悬停渐变到主题色  -->
+    <Style Selector="controls|MyExpander /template/ TextBlock#HeaderText">
+        <Setter Property="Foreground" Value="{DynamicResource ColorBrush1}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Duration="0:0:0.2" Property="Foreground" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="controls|MyExpander:pointerover /template/ TextBlock#HeaderText">
+        <Setter Property="Foreground" Value="{DynamicResource ColorBrush3}" />
+    </Style>
+
+    <!--  悬停光晕淡入；悬停在卡片内容上同样会触发（pointerover 会冒泡到卡片）  -->
+    <Style Selector="controls|MyExpander:pointerover /template/ Border#Glow">
+        <Setter Property="Opacity" Value="1" />
+    </Style>
+
+</Styles>
